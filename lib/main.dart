@@ -31,6 +31,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   TextEditingController controller = TextEditingController();
+  List<String> messages = [];
 
   @override
   void dispose() {
@@ -59,10 +60,20 @@ class _HomeState extends State<Home> {
             StreamBuilder(
               stream: widget.channel.stream,
               builder: (context, dataSnapshot) {
+                if (dataSnapshot.hasData) {
+                  messages.add(dataSnapshot.data);
+                }
+                if (messages.isEmpty) {
+                  return SizedBox();
+                }
                 return Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text(
-                      (dataSnapshot.hasData) ? "${dataSnapshot.data}" : ""),
+//                  child: Text(messages.last),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) => Text(messages[index]),
+                  ),
                 );
               },
             )
