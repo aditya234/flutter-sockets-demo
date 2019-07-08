@@ -30,6 +30,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    widget.channel.sink.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,11 +51,31 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Form(
-                child: TextFormField(
-              decoration: InputDecoration(labelText: "Send a message"),
-            ))
+              child: TextFormField(
+                controller: controller,
+                decoration: InputDecoration(labelText: "Send a message"),
+              ),
+            ),
+            StreamBuilder(
+              stream: widget.channel.stream,
+              builder: (context, dataSnapshot) {
+                return Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                      (dataSnapshot.hasData) ? "${dataSnapshot.data}" : ""),
+                );
+              },
+            )
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (controller.text.isNotEmpty) {
+            widget.channel.sink.add(controller.text);
+          }
+        },
+        child: Icon(Icons.send),
       ),
     );
   }
